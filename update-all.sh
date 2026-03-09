@@ -35,9 +35,6 @@ update-brew() {
     brew upgrade --cask --greedy
     brew cleanup -s
 
-    echo -e "\n${GREEN}Brew Diagnostics${CLEAR}"
-    brew doctor 2>&1 | grep -v "Warning:.*deprecated or disabled"
-    brew missing
 }
 
 update-gem() {
