@@ -36,7 +36,7 @@ update-brew() {
     brew cleanup -s
 
     echo -e "\n${GREEN}Brew Diagnostics${CLEAR}"
-    brew doctor
+    brew doctor 2>&1 | grep -v "Warning:.*deprecated or disabled"
     brew missing
 }
 
@@ -102,4 +102,8 @@ update-all() {
 
 # COMMENT OUT IF SOURCING
 update-all
-iconsur set /System/Volumes/Data/Applications/AltTab.app -i /Users/mo/Documents/Mac_apps/icons/AltTab.icns -s 1.2
+# iconsur set /System/Volumes/Data/Applications/Spotify.app -i /Users/mo/Documents/Mac_apps/icons/Spotify.icns -s 1.3
+# iconsur set /System/Volumes/Data/Applications/whispering.app -l -s 0.9
+# iconsur set /System/Volumes/Data/Applications/ruma.app -l -s 1.1
+
+
