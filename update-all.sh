@@ -11,14 +11,19 @@
 GREEN='\033[32m' # Gruen
 CLEAR='\033[0m'  # Standardformatierung zuruecksetzen
 
-# Homebrew in den non-interactive Modus versetzen
-export NONINTERACTIVE=1
+# --- SUDO-BERECHTIGUNGEN EINMALIG ANFORDERN ---
+echo -e "${GREEN}Fordere sudo-Berechtigungen an (fuer macOS Updates und System-Casks)...${CLEAR}"
+sudo -v
+# Keep-alive-Prozess im Hintergrund starten: Haelt sudo-Rechte aktiv, solange das Skript laeuft
+(while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null) &
+# ----------------------------------------------
 
-# Verhindert die standardmaessige Sicherheitsabfrage von Homebrew bei Upgrades
-export HOMEBREW_NO_ASK=1
-
-# Erlaubt das Laden von Drittanbieter-Taps ohne manuelle Freigabe oder Bestaetigung
+# --- HOMEBREW KONFIGURATION ---
+# Die korrekte Homebrew-Variable, um [y/n] Abfragen komplett zu unterdruecken
+export HOMEBREW_NO_INTERACTIVE=1
+export HOMEBREW_NO_ENV_HINTS=1
 export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
+# ------------------------------
 
 update-brew() {
     if ! which brew &>/dev/null; then return; fi
@@ -28,14 +33,16 @@ update-brew() {
 
     echo -e "${GREEN}Aktualisiere Brew Formeln${CLEAR}"
     brew update
-    # Beantwortet alle eventuellen Prompts automatisch mit Ja
-    yes | brew upgrade --greedy
+    
+    # 'yes |' entfernt, HOMEBREW_NO_INTERACTIVE kuemmert sich nun sauber um die Abfragen
+    brew upgrade --greedy
     brew cleanup -s
 
     echo -e "\n${GREEN}Aktualisiere Brew Casks${CLEAR}"
     brew outdated --cask
-    # Faengt Cask-spezifische Prompts automatisch ab
-    yes | brew upgrade --cask --greedy
+    
+    # 'yes |' entfernt
+    brew upgrade --cask --greedy
     brew cleanup -s
 }
 
@@ -92,13 +99,6 @@ update-macos() {
 }
 
 update-all() {
-    # Einmalig Sudo-Passwort im Voraus abfragen
-    echo -e "${GREEN}Fordere sudo-Berechtigungen an (fuer macOS Updates und System-Casks)...${CLEAR}"
-    sudo -v
-    
-    # Keep-alive-Prozess im Hintergrund starten: Haelt sudo-Rechte aktiv, solange das Skript laeuft
-    while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-
     # Updates ausfuehren
     update-brew
     update-app_store
